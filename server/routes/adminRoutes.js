@@ -9,3 +9,9 @@ router.get("/admin", auth, isAdmin, (req, res) => {
     });
 })
 export default router;
+
+// {
+//   "email": "admin@admin.com",
+//   "password": "Admin@123"
+// }
+// $2b$10$ntIFaNf0mlhRAwgYuT2QTeyzSungUG5nD0RrLvVKyaRjBwEOFR/NS;

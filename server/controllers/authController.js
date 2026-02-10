@@ -4,9 +4,9 @@ import jwt from "jsonwebtoken";
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, surname, email, password } = req.body;
 
-    if (!name || !email || !password) {
+    if (!name || !surname || !email || !password) {
       return res.status(400).json({
         success: false,
         message: "All fields are mandatory",
@@ -25,9 +25,10 @@ export const register = async (req, res) => {
 
     const user = await User.create({
       name,
+      surname,
       email,
       password: hashedPassword,
-      role: role || "user",
+      role: "user",
     });
 
     return res.status(201).json({
@@ -36,6 +37,7 @@ export const register = async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
+        surname: user.surname,
         email: user.email,
         role: user.role,
       },
@@ -84,10 +86,11 @@ export const login = async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
+        surname: user.surname,
         email: user.email,
         role: user.role,
-      }
-    })
+      },
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,

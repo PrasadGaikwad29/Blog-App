@@ -17,12 +17,25 @@ const commentSchema = new mongoose.Schema(
 
 const blogSchema = new mongoose.Schema(
   {
-    title: String,
-    content: String,
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    content: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    status: {
+      type: String,
+      enum: ["draft", "review", "publish"],
+      default: "draft",
     },
     comments: [commentSchema],
     likes: [
@@ -36,5 +49,3 @@ const blogSchema = new mongoose.Schema(
 );
 
 export default mongoose.model("Blog", blogSchema);
-
-
