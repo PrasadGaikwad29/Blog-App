@@ -49,11 +49,6 @@ const SingleBlog = () => {
       <br />
       <br />
 
-      {/* Sidebar */}
-      <div style={{ flex: 1 }}>
-        <h3>Recently Published</h3>
-        {/* Later you can fetch latest blogs here */}
-      </div>
       <br />
       <br />
     </div>

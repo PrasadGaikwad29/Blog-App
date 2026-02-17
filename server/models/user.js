@@ -27,6 +27,15 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "user"],
       default: "user",
     },
+
+    // ✅ ADD THESE
+    resetPasswordToken: {
+      type: String,
+    },
+    resetPasswordExpires: {
+      type: Date,
+    },
+
     blogs: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: "Blog",

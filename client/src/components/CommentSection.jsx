@@ -20,6 +20,7 @@ const CommentSection = ({ blogId, isAdmin = false }) => {
     }
   };
 
+  // Build nested tree
   const buildCommentTree = (comments) => {
     const map = {};
     const roots = [];
@@ -41,6 +42,8 @@ const CommentSection = ({ blogId, isAdmin = false }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!content.trim()) return;
+
     try {
       await api.post(`/blogs/comment/${blogId}`, { text: content });
       setContent("");
@@ -52,16 +55,19 @@ const CommentSection = ({ blogId, isAdmin = false }) => {
 
   const commentTree = buildCommentTree(comments);
 
+  // =====================================
+  // 🔥 Recursive Comment Component
+  // =====================================
   const CommentItem = ({ comment, level = 0 }) => {
     const [replying, setReplying] = useState(false);
     const [replyText, setReplyText] = useState("");
-    const [collapsed, setCollapsed] = useState(false);
+    const [showReplies, setShowReplies] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
 
     const hasReplies = comment.replies.length > 0;
 
-    // Close dropdown when clicking outside
+    // Close admin dropdown on outside click
     useEffect(() => {
       const handleClickOutside = (event) => {
         if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -77,6 +83,8 @@ const CommentSection = ({ blogId, isAdmin = false }) => {
 
     const handleReply = async (e) => {
       e.preventDefault();
+      if (!replyText.trim()) return;
+
       try {
         await api.post(`/blogs/comment/${blogId}`, {
           text: replyText,
@@ -108,32 +116,20 @@ const CommentSection = ({ blogId, isAdmin = false }) => {
           marginTop: 16,
           padding: 12,
           borderLeft: level > 0 ? "2px solid #ddd" : "none",
-          position: "relative",
         }}
       >
+        {/* Header */}
         <div
           style={{
             display: "flex",
-            alignItems: "center",
             justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {hasReplies && (
-              <span
-                onClick={() => setCollapsed(!collapsed)}
-                style={{ cursor: "pointer", userSelect: "none" }}
-              >
-                {collapsed ? "▶" : "▼"}
-              </span>
-            )}
+          <strong>
+            {comment.user?.name} {comment.user?.surname}
+          </strong>
 
-            <strong>
-              {comment.user?.name} {comment.user?.surname}
-            </strong>
-          </div>
-
-          {/* 🔥 Admin 3-dot menu */}
           {isAdmin && (
             <div ref={menuRef} style={{ position: "relative" }}>
               <span
@@ -142,7 +138,6 @@ const CommentSection = ({ blogId, isAdmin = false }) => {
                   cursor: "pointer",
                   padding: "0 6px",
                   fontSize: 18,
-                  userSelect: "none",
                 }}
               >
                 ⋮
@@ -178,43 +173,70 @@ const CommentSection = ({ blogId, isAdmin = false }) => {
           )}
         </div>
 
-        {!collapsed && (
-          <>
-            <p style={{ marginTop: 6 }}>{comment.text}</p>
+        {/* Comment Text */}
+        <p style={{ marginTop: 6 }}>{comment.text}</p>
 
-            {user &&  (
-              <button
-                onClick={() => setReplying(!replying)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "#007bff",
-                  cursor: "pointer",
-                  padding: 0,
-                }}
-              >
-                Reply
-              </button>
-            )}
+        {/* Reply Button */}
+        {user && (
+          <button
+            onClick={() => setReplying(!replying)}
+            style={{
+              background: "none",
+              border: "none",
+              color: "#007bff",
+              cursor: "pointer",
+              padding: 0,
+              fontSize: 14,
+            }}
+          >
+            Reply
+          </button>
+        )}
 
-            {replying && (
-              <form onSubmit={handleReply} style={{ marginTop: 10 }}>
-                <textarea
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  required
-                  style={{ width: "100%", minHeight: "60px" }}
-                />
-                <button type="submit" style={{ marginTop: 6 }}>
-                  Submit Reply
-                </button>
-              </form>
-            )}
+        {/* Reply Form */}
+        {replying && (
+          <form onSubmit={handleReply} style={{ marginTop: 10 }}>
+            <textarea
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              required
+              style={{ width: "100%", minHeight: "60px" }}
+            />
+            <button type="submit" style={{ marginTop: 6 }}>
+              Submit Reply
+            </button>
+          </form>
+        )}
 
+        {/* 🔥 View Replies Toggle */}
+        {hasReplies && (
+          <div style={{ marginTop: 6 }}>
+            <button
+              onClick={() => setShowReplies(!showReplies)}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#6c757d",
+                cursor: "pointer",
+                padding: 0,
+                fontSize: 14,
+                fontWeight: 500,
+              }}
+            >
+              {showReplies
+                ? "Hide replies"
+                : `View replies (${comment.replies.length})`}
+            </button>
+          </div>
+        )}
+
+        {/* Nested Replies */}
+        {hasReplies && showReplies && (
+          <div style={{ marginTop: 10 }}>
             {comment.replies.map((reply) => (
               <CommentItem key={reply._id} comment={reply} level={level + 1} />
             ))}
-          </>
+          </div>
         )}
       </div>
     );

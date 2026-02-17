@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {
   const { login } = useAuth();
@@ -11,30 +11,31 @@ const Login = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
 
-  try {
-    const loggedInUser = await login({ email, password });
+    try {
+      const loggedInUser = await login({ email, password });
 
-    if (loggedInUser?.role === "admin") {
-      navigate("/admindashboard");
-    } else {
-      navigate("/userdashboard/myblogs");
+      if (loggedInUser?.role === "admin") {
+        navigate("/admindashboard");
+      } else {
+        navigate("/userdashboard/myblogs");
+      }
+    } catch (err) {
+      setError("Invalid credentials");
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    setError("Invalid credentials");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <form onSubmit={handleSubmit}>
       <h2>Login</h2>
 
-      {error && <p>{error}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
       <input
         type="email"
@@ -51,6 +52,10 @@ const handleSubmit = async (e) => {
         onChange={(e) => setPassword(e.target.value)}
         required
       />
+
+      <div style={{ marginBottom: "10px" }}>
+        <Link to="/forgot-password">Forgot Password?</Link>
+      </div>
 
       <button disabled={loading}>{loading ? "Logging in..." : "Login"}</button>
     </form>

@@ -9,6 +9,8 @@ import Register from "./pages/Register";
 import MyBlogs from "./pages/MyBlogs";
 import AdminDashboard from "./pages/AdminDashboard";
 import SingleBlog from "./pages/SingleBlog";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 
 function App() {
@@ -20,6 +22,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/blogs/:id" element={<SingleBlog />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element= {<ResetPassword />} />
 
         <Route
           path="/create"
