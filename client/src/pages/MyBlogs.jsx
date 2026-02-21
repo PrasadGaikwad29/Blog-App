@@ -18,7 +18,6 @@ const MyBlogs = () => {
   const navigate = useNavigate();
 
   /* ---------------- Format Date ---------------- */
-
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -33,14 +32,12 @@ const MyBlogs = () => {
   };
 
   /* ---------------- Fetch My Blogs ---------------- */
-
   const fetchMyBlogs = async () => {
     try {
       setLoading(true);
       const res = await api.get("/blogs/myblogs");
       const data = res.data.blogs || [];
 
-      // Sort newest first (recommended)
       const sorted = data.sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
       );
@@ -59,7 +56,6 @@ const MyBlogs = () => {
   }, []);
 
   /* ---------------- Client-side Search ---------------- */
-
   const handleSearch = useCallback(
     (filters) => {
       let result = [...blogs];
@@ -98,7 +94,6 @@ const MyBlogs = () => {
   );
 
   /* ---------------- Delete Blog ---------------- */
-
   const deleteBlog = async (id) => {
     try {
       setDeletingId(id);
@@ -115,7 +110,6 @@ const MyBlogs = () => {
   };
 
   /* ---------------- Read More Toggle ---------------- */
-
   const toggleReadMore = (id) => {
     setExpanded((prev) => ({
       ...prev,
@@ -124,7 +118,6 @@ const MyBlogs = () => {
   };
 
   /* ---------------- Pagination ---------------- */
-
   const totalPages = Math.ceil(filteredBlogs.length / BLOGS_PER_PAGE);
   const startIndex = (currentPage - 1) * BLOGS_PER_PAGE;
 
@@ -140,7 +133,6 @@ const MyBlogs = () => {
   };
 
   /* ---------------- UI ---------------- */
-
   return (
     <div className="min-h-screen bg-gray-900 px-6 py-10 text-gray-100">
       <div className="max-w-6xl mx-auto">
@@ -214,7 +206,18 @@ const MyBlogs = () => {
 
           {currentBlogs.map((blog) => {
             const isExpanded = expanded[blog._id];
-            const previewLength = 250;
+            const previewLength = 650;
+
+            // Function to format content into paragraphs
+            const renderContent = (content) =>
+              content
+                .slice(0, isExpanded ? content.length : previewLength)
+                .split("\n")
+                .map((line, index) => (
+                  <p key={index} className="mb-2">
+                    {line}
+                  </p>
+                ));
 
             return (
               <div
@@ -233,20 +236,19 @@ const MyBlogs = () => {
                   <span>{formatDate(blog.createdAt)}</span>
                 </div>
 
-                <p className="text-gray-300 leading-relaxed">
-                  {isExpanded
-                    ? blog.content
-                    : blog.content.slice(0, previewLength)}
+                {/* Blog Content with Paragraphs */}
+                <div className="text-gray-300 leading-relaxed">
+                  {renderContent(blog.content)}
 
                   {blog.content.length > previewLength && (
                     <span
                       onClick={() => toggleReadMore(blog._id)}
-                      className="text-blue-400 cursor-pointer hover:underline ml-1"
+                      className="text-blue-400 cursor-pointer hover:underline"
                     >
-                      {isExpanded ? " Show Less" : "... Read More"}
+                      {isExpanded ? " Show Less" : "Read More..."}
                     </span>
                   )}
-                </p>
+                </div>
 
                 <p className="mt-4 text-sm text-gray-400">
                   Status:{" "}

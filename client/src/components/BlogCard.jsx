@@ -61,7 +61,7 @@ return (
       <div className="mt-4 text-gray-300 leading-relaxed text-sm">
         {!showActions ? (
           <>
-            {blog.content.slice(0, 350)}...
+            {blog.content.slice(0, 650)}...
             <span
               onClick={() => navigate(`/blogs/${blog._id}`)}
               className="ml-2 text-blue-400 cursor-pointer hover:underline"
