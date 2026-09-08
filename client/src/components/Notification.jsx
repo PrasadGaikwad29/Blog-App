@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 export default function Notification({
   notifications,
   markNotificationAsRead,
+  markAllAsRead,
 }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ export default function Notification({
     setOpen(false);
 
     // Navigate immediately (always works)
-    if (blogId) {
+    if (blogId && notification.type !== "blog_deleted") {
       navigate(`/blogs/${blogId}`);
     }
 
@@ -67,7 +68,18 @@ export default function Notification({
       {open && (
         <div className="absolute right-0 mt-3 w-80 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50">
           <div className="px-4 py-2 border-b border-gray-700 font-semibold">
-            Notifications
+            <div className="flex items-center justify-between gap-3">
+              <span>Notifications</span>
+              {unreadCount > 0 && (
+                <button
+                  type="button"
+                  onClick={markAllAsRead}
+                  className="text-xs text-blue-400 hover:text-blue-300"
+                >
+                  Mark all as read
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="max-h-72 overflow-y-auto">

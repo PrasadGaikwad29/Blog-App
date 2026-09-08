@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
-const CommentSection = ({ blogId, isAdmin = false }) => {
+const CommentSection = ({ blogId, isAdmin = false, initialComments }) => {
   const { user } = useAuth();
   const [comments, setComments] = useState([]);
   const [content, setContent] = useState("");
@@ -10,8 +10,12 @@ const CommentSection = ({ blogId, isAdmin = false }) => {
 
   useEffect(() => {
     if (!blogId) return;
+    if (initialComments) {
+      setComments(initialComments);
+      return;
+    }
     fetchComments();
-  }, [blogId]);
+  }, [blogId, initialComments]);
 
   const fetchComments = async () => {
     if (!blogId) return;

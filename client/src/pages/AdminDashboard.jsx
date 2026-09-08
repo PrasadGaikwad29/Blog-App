@@ -241,7 +241,11 @@ const AdminDashboard = () => {
 
                 {/* Comments */}
                 <div className="mt-6">
-                  <CommentSection blogId={blog._id} isAdmin />
+                  <CommentSection
+                    blogId={blog._id}
+                    isAdmin
+                    initialComments={blog.comments}
+                  />
                 </div>
               </div>
             );

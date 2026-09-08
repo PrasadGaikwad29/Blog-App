@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useBlogs } from "../context/BlogContext";
 import BlogCard from "../components/BlogCard";
 import SearchBar from "../components/SearchBar";
@@ -6,63 +6,46 @@ import SearchBar from "../components/SearchBar";
 const BLOGS_PER_PAGE = 10;
 
 const Home = () => {
-  const { blogs, loading, fetchBlogs } = useBlogs();
+  const { blogs, loading } = useBlogs();
 
-  const [filteredBlogs, setFilteredBlogs] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isSearching, setIsSearching] = useState(false);
+  const [searchFilters, setSearchFilters] = useState({});
 
-  useEffect(() => {
-    fetchBlogs();
-  }, []);
+  const filteredBlogs = useMemo(() => {
+    let result = [...blogs];
+    const { title, author, date, status } = searchFilters;
 
-  useEffect(() => {
-    if (Array.isArray(blogs)) {
-      // Sort newest first
-      const sorted = [...blogs].sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+    if (title?.trim()) {
+      result = result.filter((blog) =>
+        blog.title?.toLowerCase().includes(title.toLowerCase()),
       );
-      setFilteredBlogs(sorted);
     }
-  }, [blogs]);
+    if (author?.trim()) {
+      result = result.filter((blog) =>
+        `${blog.author?.name || ""} ${blog.author?.surname || ""}`
+          .toLowerCase()
+          .includes(author.toLowerCase()),
+      );
+    }
+    if (date) {
+      result = result.filter((blog) => blog.createdAt?.slice(0, 10) === date);
+    }
+    if (status?.trim()) {
+      result = result.filter(
+        (blog) => blog.status?.toLowerCase() === status.toLowerCase(),
+      );
+    }
+
+    return result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }, [blogs, searchFilters]);
 
   /* -------- Client-side Filtering -------- */
-  const handleSearch = useCallback(
-    (filters) => {
-      let result = [...blogs];
+  const handleSearch = useCallback((filters) => {
+    setSearchFilters(filters);
+    setCurrentPage(1);
+  }, []);
 
-      if (filters.title?.trim()) {
-        result = result.filter((blog) =>
-          blog.title?.toLowerCase().includes(filters.title.toLowerCase()),
-        );
-      }
-
-      if (filters.author?.trim()) {
-        result = result.filter((blog) =>
-          `${blog.author?.name || ""} ${blog.author?.surname || ""}`
-            .toLowerCase()
-            .includes(filters.author.toLowerCase()),
-        );
-      }
-
-      if (filters.date) {
-        result = result.filter(
-          (blog) => blog.createdAt?.slice(0, 10) === filters.date,
-        );
-      }
-
-      if (filters.status?.trim()) {
-        result = result.filter(
-          (blog) => blog.status?.toLowerCase() === filters.status.toLowerCase(),
-        );
-      }
-
-      setFilteredBlogs(result);
-      setCurrentPage(1);
-      setIsSearching(true);
-    },
-    [blogs],
-  );
+  const isSearching = Object.values(searchFilters).some(Boolean);
 
   if (loading) {
     return (

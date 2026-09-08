@@ -3,6 +3,7 @@ import { auth } from "../middlewares/auth.js";
 import {
   getMyNotifications,
   markNotificationRead,
+  markAllNotificationsRead,
   editProfile,
 } from "../controllers/userController.js";
 
@@ -17,6 +18,7 @@ router.get("/profile", auth, (req, res) => {
 });
 
 router.get("/notifications", auth, getMyNotifications);
+router.put("/notifications/mark-all", auth, markAllNotificationsRead);
 router.put("/notifications/:id", auth, markNotificationRead);
 router.put("/edit-profile", auth, editProfile);
 

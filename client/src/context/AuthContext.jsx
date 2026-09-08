@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }) => {
       if (!token) return;
 
       const res = await api.get("/users/notifications");
-      setNotifications(res.data.notifications);
+      setNotifications(res.data.notifications || []);
     } catch (error) {
       console.error("Fetch notifications error:", error);
     }

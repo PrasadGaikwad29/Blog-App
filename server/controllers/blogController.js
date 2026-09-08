@@ -184,6 +184,8 @@ export const updateBlog = async (req, res) => {
         $push: {
           notifications: {
             message: `Admin changed your blog "${blog.title}" from ${previousStatus} to ${status}.`,
+            blogId: blog._id,
+            type: "status_changed",
           },
         },
       });
@@ -234,17 +236,17 @@ export const deleteBlog = async (req, res) => {
     });
 
     // 🔔 Notify only if ADMIN deleted it
-if (isAdmin && !isAuthor) {
-  await User.findByIdAndUpdate(blog.author, {
-    $push: {
-      notifications: {
-        message: `Admin deleted your blog "${blog.title}".`,
-        blogId: blog._id,
-        type: "blog_deleted",
-      },
-    },
-  });
-}
+    if (isAdmin && !isAuthor) {
+      await User.findByIdAndUpdate(blog.author, {
+        $push: {
+          notifications: {
+            message: `Admin deleted your blog "${blog.title}".`,
+            blogId: blog._id,
+            type: "blog_deleted",
+          },
+        },
+      });
+    }
     return res.status(200).json({
       success: true,
       message: "Blog deleted",
@@ -309,7 +311,7 @@ export const toggleLike = async (req, res) => {
 ======================= */
 export const addComment = async (req, res) => {
   try {
-    const { text, parentId} = req.body;
+    const { text, parentId } = req.body;
 
     if (!text) {
       return res.status(400).json({
@@ -337,7 +339,7 @@ export const addComment = async (req, res) => {
     blog.comments.push({
       user: req.user.id,
       text,
-      parent : parentId || null,
+      parent: parentId || null,
     });
 
     await blog.save();

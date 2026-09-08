@@ -4,7 +4,8 @@ import { useState } from "react";
 import Notification from "./Notification";
 
 export default function Navbar() {
-  const { user, logout, notifications, markNotificationAsRead } = useAuth();
+  const { user, logout, notifications, markNotificationAsRead, markAllAsRead } =
+    useAuth();
   const [open, setOpen] = useState(false);
 
   return (
@@ -18,7 +19,7 @@ export default function Navbar() {
           >
             Home
           </Link>
-          
+
           {/* ✅ NEW CREATE BLOG BUTTON */}
           <Link to="/create" className="hover:text-purple-400 transition">
             + Create new Blog
@@ -70,6 +71,7 @@ export default function Navbar() {
               <Notification
                 notifications={notifications}
                 markNotificationAsRead={markNotificationAsRead}
+                markAllAsRead={markAllAsRead}
               />
 
               {/* USER DROPDOWN */}

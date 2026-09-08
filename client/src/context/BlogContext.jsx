@@ -14,18 +14,19 @@ export const BlogProvider = ({ children }) => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(false);
 
-const fetchBlogs = async () => {
-  setLoading(true);
-  try {
-    const res = await getBlogs();
-    setBlogs(res.data.blogs || []);
-  } catch (error) {
-    console.error("Failed to fetch blogs", error);
-  } finally {
-    setLoading(false);
-  }
-};
-   const addBlog = async (data) => {
+  const fetchBlogs = async () => {
+    setLoading(true);
+    try {
+      const res = await getBlogs();
+      setBlogs(res.data.blogs || []);
+    } catch (error) {
+      console.error("Failed to fetch blogs", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addBlog = async (data) => {
     const res = await createBlog(data);
     setBlogs((prev) => [res.data.blog, ...prev]);
   };
@@ -36,8 +37,9 @@ const fetchBlogs = async () => {
 
   const removeBlog = async (id) => {
     await deleteBlog(id);
-    setBlogs((prev)=>prev.filter((b)=>b._id !== id))
-  }
+    setBlogs((prev) => prev.filter((blog) => blog._id !== id));
+  };
+
   useEffect(() => {
     fetchBlogs();
   }, []);
@@ -46,14 +48,15 @@ const fetchBlogs = async () => {
     const res = await toggleLikeBlog(id);
 
     setBlogs((prev) =>
-      prev.map((b) => (b._id === id ? res.data.blog : b))
+      prev.map((blog) => (blog._id === id ? res.data.blog : blog)),
     );
   };
-const fetchSingleBlog = async (id) => {
-  const res = await api.get(`/blogs/getblogbyid/${id}`);
-  return res.data.blog;
+
+  const fetchSingleBlog = async (id) => {
+    const res = await api.get(`/blogs/getblogbyid/${id}`);
+    return res.data.blog;
   };
-  
+
   return (
     <BlogContext.Provider
       value={{

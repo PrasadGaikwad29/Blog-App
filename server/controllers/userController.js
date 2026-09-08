@@ -22,7 +22,8 @@ export const editProfile = async (req, res) => {
       message: "Server error while updating profile",
     });
   }
-};export const getMyNotifications = async (req, res) => {
+};
+export const getMyNotifications = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("notifications");
 
@@ -68,6 +69,25 @@ export const markNotificationRead = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Notification marked as read",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const markAllNotificationsRead = async (req, res) => {
+  try {
+    await User.updateOne(
+      { _id: req.user.id },
+      { $set: { "notifications.$[].isRead": true } },
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "All notifications marked as read",
     });
   } catch (error) {
     res.status(500).json({
