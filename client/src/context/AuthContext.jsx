@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+  useEffect,
+} from "react";
 import { loginUser } from "../services/authService";
 import api from "../services/api";
 
@@ -55,7 +61,7 @@ export const AuthProvider = ({ children }) => {
   /* ============================
      FETCH NOTIFICATIONS
   ============================ */
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       if (!token) return;
 
@@ -64,7 +70,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Fetch notifications error:", error);
     }
-  };
+  }, [token]);
 
   /* ============================
      MARK SINGLE NOTIFICATION AS READ
@@ -99,9 +105,9 @@ export const AuthProvider = ({ children }) => {
   ============================ */
   useEffect(() => {
     if (user && token) {
-      fetchNotifications();
+      void Promise.resolve().then(fetchNotifications);
     }
-  }, [user, token]);
+  }, [user, token, fetchNotifications]);
 
   return (
     <AuthContext.Provider
@@ -122,4 +128,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);

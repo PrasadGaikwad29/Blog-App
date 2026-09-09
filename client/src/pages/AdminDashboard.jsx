@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import api from "../services/api";
 import CommentSection from "../components/CommentSection";
 import SearchBar from "../components/SearchBar";
+import RecentBlogsSidebar from "../components/RecentBlogsSidebar";
 
 const BLOGS_PER_PAGE = 10;
 
@@ -137,120 +138,136 @@ const AdminDashboard = () => {
     }));
   };
 
+  const renderPagination = (isBottom = false) => {
+    if (totalPages <= 1) return null;
+
+    return (
+      <div
+        className={`flex gap-2 justify-end ${isBottom ? "mt-10 pb-2" : "mb-6"}`}
+      >
+        <button
+          onClick={() => goToPage(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-3 py-1 bg-gray-800 rounded disabled:opacity-50"
+        >
+          Prev
+        </button>
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => goToPage(i + 1)}
+            className={`px-3 py-1 rounded ${
+              currentPage === i + 1 ? "bg-blue-600" : "bg-gray-800"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+        <button
+          onClick={() => goToPage(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="px-3 py-1 bg-gray-800 rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 px-6 py-10 text-gray-100">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold text-white mb-6">Admin Dashboard</h2>
+      <div className="grid w-full gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
+        <main className="min-w-0 w-full">
+          <h2 className="text-3xl font-bold text-white mb-6">
+            Admin Dashboard
+          </h2>
 
-        <SearchBar onSearch={handleSearch} showStatus={true} />
+          <SearchBar onSearch={handleSearch} showStatus={true} />
 
-        {totalPages > 1 && (
-          <div className="flex gap-2 justify-end mb-6">
-            <button
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-3 py-1 bg-gray-800 rounded disabled:opacity-50"
-            >
-              Prev
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => goToPage(i + 1)}
-                className={`px-3 py-1 rounded ${
-                  currentPage === i + 1 ? "bg-blue-600" : "bg-gray-800"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
-            <button
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 bg-gray-800 rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        )}
+          {renderPagination(false)}
 
-        <div className="space-y-8">
-          {currentBlogs.map((blog) => {
-            const isExpanded = showMoreState[blog._id];
+          <div className="space-y-8 pb-4">
+            {currentBlogs.map((blog) => {
+              const isExpanded = showMoreState[blog._id];
 
-            return (
-              <div
-                key={blog._id}
-                className="bg-gray-800 rounded-2xl p-6 border border-gray-700"
-              >
-                <h3 className="text-xl font-semibold mb-2">{blog.title}</h3>
-
-                {/* Author + Date */}
-                <div className="flex justify-between text-sm text-gray-400 mb-4">
-                  <span>
-                    Author:{" "}
-                    <span className="text-gray-200 font-medium">
-                      {blog.author?.name} {blog.author?.surname}
-                    </span>
-                  </span>
-                  <span>{formatDate(blog.createdAt)}</span>
-                </div>
-
-                {/* Blog Content */}
-                <p className="text-gray-300 mb-2 whitespace-pre-line">
-                  {isExpanded
-                    ? blog.content
-                    : `${blog.content.slice(0, 350)}${
-                        blog.content.length > 350 ? "..." : ""
-                      }`}
-                </p>
-
-                {/* Show More / Show Less */}
-                {blog.content.length > 350 && (
-                  <span
-                    onClick={() => toggleShowMore(blog._id)}
-                    className="text-blue-400 cursor-pointer hover:underline text-sm"
-                  >
-                    {isExpanded ? "Show Less" : "Show More"}
-                  </span>
-                )}
-
-                {/* Status */}
-                <div className="mt-5 flex items-center gap-4">
-                  <label>Status:</label>
-                  <select
-                    value={blog.status}
-                    onChange={(e) => updateStatus(blog._id, e.target.value)}
-                    disabled={updatingId === blog._id}
-                    className="bg-gray-700 px-3 py-2 rounded"
-                  >
-                    <option value="draft">Draft</option>
-                    <option value="review">Review</option>
-                    <option value="publish">Publish</option>
-                  </select>
-                </div>
-
-                {/* Delete */}
-                <button
-                  onClick={() => deleteBlog(blog._id)}
-                  disabled={deletingId === blog._id}
-                  className="mt-5 bg-red-600 hover:bg-red-700 px-4 py-2 rounded"
+              return (
+                <div
+                  key={blog._id}
+                  className="bg-gray-800 rounded-2xl p-6 border border-gray-700"
                 >
-                  {deletingId === blog._id ? "Deleting..." : "Delete Blog"}
-                </button>
+                  <h3 className="text-xl font-semibold mb-2">{blog.title}</h3>
 
-                {/* Comments */}
-                <div className="mt-6">
-                  <CommentSection
-                    blogId={blog._id}
-                    isAdmin
-                    initialComments={blog.comments}
-                  />
+                  {/* Author + Date */}
+                  <div className="flex justify-between text-sm text-gray-400 mb-4">
+                    <span>
+                      Author:{" "}
+                      <span className="text-gray-200 font-medium">
+                        {blog.author?.name} {blog.author?.surname}
+                      </span>
+                    </span>
+                    <span>{formatDate(blog.createdAt)}</span>
+                  </div>
+
+                  {/* Blog Content */}
+                  <p className="text-gray-300 mb-2 whitespace-pre-line">
+                    {isExpanded
+                      ? blog.content
+                      : `${blog.content.slice(0, 350)}${
+                          blog.content.length > 350 ? "..." : ""
+                        }`}
+                  </p>
+
+                  {/* Show More / Show Less */}
+                  {blog.content.length > 350 && (
+                    <span
+                      onClick={() => toggleShowMore(blog._id)}
+                      className="text-blue-400 cursor-pointer hover:underline text-sm"
+                    >
+                      {isExpanded ? "Show Less" : "Show More"}
+                    </span>
+                  )}
+
+                  {/* Status */}
+                  <div className="mt-5 flex items-center gap-4">
+                    <label>Status:</label>
+                    <select
+                      value={blog.status}
+                      onChange={(e) => updateStatus(blog._id, e.target.value)}
+                      disabled={updatingId === blog._id}
+                      className="bg-gray-700 px-3 py-2 rounded"
+                    >
+                      <option value="draft">Draft</option>
+                      <option value="review">Review</option>
+                      <option value="publish">Publish</option>
+                    </select>
+                  </div>
+
+                  {/* Delete */}
+                  <button
+                    onClick={() => deleteBlog(blog._id)}
+                    disabled={deletingId === blog._id}
+                    className="mt-5 bg-red-600 hover:bg-red-700 px-4 py-2 rounded"
+                  >
+                    {deletingId === blog._id ? "Deleting..." : "Delete Blog"}
+                  </button>
+
+                  {/* Comments */}
+                  <div className="mt-6">
+                    <CommentSection
+                      blogId={blog._id}
+                      isAdmin
+                      initialComments={blog.comments}
+                    />
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+
+          {renderPagination(true)}
+        </main>
+
+        <RecentBlogsSidebar blogs={blogs} includeUnpublished />
       </div>
     </div>
   );

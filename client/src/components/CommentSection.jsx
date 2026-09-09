@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
@@ -8,16 +8,7 @@ const CommentSection = ({ blogId, isAdmin = false, initialComments }) => {
   const [content, setContent] = useState("");
   const [showAllComments, setShowAllComments] = useState(true);
 
-  useEffect(() => {
-    if (!blogId) return;
-    if (initialComments) {
-      setComments(initialComments);
-      return;
-    }
-    fetchComments();
-  }, [blogId, initialComments]);
-
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     if (!blogId) return;
     try {
       const res = await api.get(`/blogs/getblogbyid/${blogId}`);
@@ -25,7 +16,16 @@ const CommentSection = ({ blogId, isAdmin = false, initialComments }) => {
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [blogId]);
+
+  useEffect(() => {
+    if (!blogId) return;
+    if (initialComments) {
+      setComments(initialComments);
+      return;
+    }
+    void fetchComments();
+  }, [blogId, initialComments, fetchComments]);
 
   // Build nested comment tree
   const buildCommentTree = (comments) => {

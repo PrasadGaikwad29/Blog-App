@@ -75,4 +75,5 @@ export const BlogProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useBlogs = () => useContext(BlogContext);

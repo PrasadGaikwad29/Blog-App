@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from "react";
 import { useBlogs } from "../context/BlogContext";
 import BlogCard from "../components/BlogCard";
 import SearchBar from "../components/SearchBar";
+import RecentBlogsSidebar from "../components/RecentBlogsSidebar";
 
 const BLOGS_PER_PAGE = 10;
 
@@ -71,71 +72,88 @@ const Home = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const renderPagination = (isBottom = false) => {
+    if (totalPages <= 1) return null;
+
+    return (
+      <div
+        className={`flex justify-end items-center gap-2 ${
+          isBottom ? "mt-10 pb-2" : "mb-8"
+        }`}
+      >
+        <button
+          onClick={() => goToPage(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`px-3 py-1 text-sm rounded-lg transition ${
+            currentPage === 1
+              ? "bg-gray-700 text-gray-500 cursor-not-allowed"
+              : "bg-gray-800 hover:bg-gray-700 text-gray-200"
+          }`}
+        >
+          Prev
+        </button>
+
+        {Array.from({ length: totalPages }, (_, index) => {
+          const page = index + 1;
+          return (
+            <button
+              key={page}
+              onClick={() => goToPage(page)}
+              className={`px-3 py-1 text-sm rounded-lg transition ${
+                currentPage === page
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-800 hover:bg-gray-700 text-gray-200"
+              }`}
+            >
+              {page}
+            </button>
+          );
+        })}
+
+        <button
+          onClick={() => goToPage(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`px-3 py-1 text-sm rounded-lg transition ${
+            currentPage === totalPages
+              ? "bg-gray-700 text-gray-500 cursor-not-allowed"
+              : "bg-gray-800 hover:bg-gray-700 text-gray-200"
+          }`}
+        >
+          Next
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 px-6 py-10 text-gray-100">
-      <div className="max-w-5xl mx-auto">
-        {/* Search Bar */}
-        <SearchBar onSearch={handleSearch} showStatus={true} />
+      <div className="grid w-full gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
+        <main className="min-w-0 w-full">
+          {/* Search Bar */}
+          <SearchBar onSearch={handleSearch} showStatus={true} />
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-end items-center gap-2 mb-8">
-            <button
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={`px-3 py-1 text-sm rounded-lg transition ${
-                currentPage === 1
-                  ? "bg-gray-700 text-gray-500 cursor-not-allowed"
-                  : "bg-gray-800 hover:bg-gray-700 text-gray-200"
-              }`}
-            >
-              Prev
-            </button>
+          {/* Pagination */}
+          {renderPagination(false)}
 
-            {Array.from({ length: totalPages }, (_, index) => {
-              const page = index + 1;
-              return (
-                <button
-                  key={page}
-                  onClick={() => goToPage(page)}
-                  className={`px-3 py-1 text-sm rounded-lg transition ${
-                    currentPage === page
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-800 hover:bg-gray-700 text-gray-200"
-                  }`}
-                >
-                  {page}
-                </button>
-              );
-            })}
+          {/* Result Not Found */}
+          {isSearching && filteredBlogs.length === 0 && (
+            <div className="text-center text-red-400 py-10 text-lg font-semibold">
+              Result Not Found
+            </div>
+          )}
 
-            <button
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className={`px-3 py-1 text-sm rounded-lg transition ${
-                currentPage === totalPages
-                  ? "bg-gray-700 text-gray-500 cursor-not-allowed"
-                  : "bg-gray-800 hover:bg-gray-700 text-gray-200"
-              }`}
-            >
-              Next
-            </button>
+          {/* Blog List */}
+          <div className="space-y-10 pb-4">
+            {currentBlogs.map((blog) => (
+              <BlogCard key={blog._id} blog={blog} showActions={false} />
+            ))}
           </div>
-        )}
 
-        {/* Result Not Found */}
-        {isSearching && filteredBlogs.length === 0 && (
-          <div className="text-center text-red-400 py-10 text-lg font-semibold">
-            Result Not Found
-          </div>
-        )}
+          {/* Pagination Bottom */}
+          {renderPagination(true)}
+        </main>
 
-        {/* Blog List */}
-        <div className="space-y-10">
-          {currentBlogs.map((blog) => (
-            <BlogCard key={blog._id} blog={blog} showActions={false} />
-          ))}
-        </div>
+        <RecentBlogsSidebar />
       </div>
     </div>
   );

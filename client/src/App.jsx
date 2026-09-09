@@ -20,7 +20,7 @@ function App() {
       <Navbar />
 
       {/* Main Content Container */}
-      <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="w-full py-6">
         <Routes>
           <Route path="/" element={<Home />} />
           {/* <Route path="/login" element={<Login />} />
